@@ -1,0 +1,51 @@
+{
+  "private": true,
+  "scripts": {
+    "s": "bun i && bun dev",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "icons": "npx tsx icons.ts",
+    "deploy": "./deploy.sh"
+  },
+  "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
+    "@hookform/resolvers": "^4.0.0",
+    "@radix-ui/react-checkbox": "^1.1.1",
+    "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-label": "^2.1.2",
+    "@radix-ui/react-select": "^2.1.6",
+    "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-toast": "^1.2.5",
+    "autoprefixer": "10.4.20",
+    "c1ph3r_c01n": "^1.4.8",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "ethers": "^6.13.5",
+    "framer-motion": "^12.2.0",
+    "fuels": "^0.99.0",
+    "input-otp": "^1.4.2",
+    "lucide-react": "^0.468.0",
+    "next": "latest",
+    "prettier": "^3.3.3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-hook-form": "^7.54.2",
+    "resend": "^4.1.2",
+    "sharp": "^0.33.5",
+    "tsx": "^4.19.2",
+    "zod": "^3.24.2",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "19.0.2",
+    "postcss": "8.4.49",
+    "tailwind-merge": "^2.5.2",
+    "tailwindcss": "3.4.17",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "5.7.2"
+  }
+}

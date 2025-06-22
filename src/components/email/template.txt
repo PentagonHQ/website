@@ -1,0 +1,41 @@
+<!-- New User Template -->
+<div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; text-align: center;">
+  <h2 style="color: #027a4f; font-size: 24px; font-weight: 600; margin-bottom: 16px; letter-spacing: 0.05em;">
+    Verification Code
+  </h2>
+  
+  <p style="color: #4b5563; font-size: 16px; margin-bottom: 24px;">
+    Enter this code to verify your email:
+  </p>
+
+  <div style="font-size: 32px; font-weight: 700; letter-spacing: 0.1em; color: #027a4f; margin: 32px 0; user-select: all;">
+    {{ .Token }}
+  </div>
+
+  <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
+    This code will expire in 5 minutes.
+  </p>
+</div>
+
+<!-- Returning User Template -->
+<div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; text-align: center;">
+  <h2 style="color: #027a4f; font-size: 24px; font-weight: 600; margin-bottom: 16px; letter-spacing: 0.05em;">
+    Welcome Back!
+  </h2>
+  
+  <p style="color: #4b5563; font-size: 16px; margin-bottom: 24px;">
+    Use this code to sign in to your account:
+  </p>
+
+  <div style="font-size: 32px; font-weight: 700; letter-spacing: 0.1em; color: #027a4f; margin: 32px 0; user-select: all;">
+    {{ .Token }}
+  </div>
+
+  <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
+    This code will expire in 5 minutes. If you didn't request this code, please ignore this email.
+  </p>
+
+  <p style="color: #4b5563; font-size: 14px; margin-top: 24px;">
+    Signing in from a new device? For your security, please make sure you recognize this request.
+  </p>
+</div>

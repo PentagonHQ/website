@@ -1,0 +1,63 @@
+# Use a Node.js base image
+FROM node:20-alpine AS builder
+
+# Hardcoded environment variables
+ENV RESEND_API_KEY=""
+ENV NEXT_PUBLIC_PASSKEY_ENC_SALT=""
+ENV NEXT_PUBLIC_VERIFIER_SECRET=""
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Install necessary network utilities
+RUN apk add --no-cache libc6-compat
+
+# Copy package.json and package-lock.json (if it exists)
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Create .env.production with hardcoded values
+RUN echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env.production && \
+    echo "NEXT_PUBLIC_PASSKEY_ENC_SALT=${NEXT_PUBLIC_PASSKEY_ENC_SALT}" >> .env.production && \
+    echo "NEXT_PUBLIC_VERIFIER_SECRET=${NEXT_PUBLIC_VERIFIER_SECRET}" >> .env.production
+
+# Debug: Print environment file content
+RUN cat .env.production
+
+# Set network timeout and retry options for the build
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Build the Next.js app for production
+RUN npm run build
+
+# Create a smaller production image (multi-stage build)
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Copy the environment variables to the runner stage
+ENV RESEND_API_KEY=""
+ENV NEXT_PUBLIC_PASSKEY_ENC_SALT=""
+ENV NEXT_PUBLIC_VERIFIER_SECRET=""
+
+# Copy necessary files from build stage
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.env.production ./.env.production
+
+# Set production environment
+ENV NODE_ENV=production
+ENV PATH=$PATH:/app/node_modules/.bin
+
+# Expose the port that Next.js uses
+EXPOSE 3000
+
+# Start the Next.js server
+CMD ["npm", "start"]

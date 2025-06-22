@@ -1,0 +1,50 @@
+MobiusGame - A progressive difficulty memory and pattern matching game
+
+Game Mechanics:
+- Players must match characters in the sequence with their corresponding directional inputs
+- Each character's color corresponds to a direction:
+  - Yellow → Up (w)
+  - Green → Down (s)
+  - Blue → Left (a)
+  - Red → Right (d)
+
+Level Progression:
+
+Level 1: Basic Pattern Matching
+- Static colors and character positions
+- Players learn the basic color-to-direction mapping
+- Sequence shows colored characters
+- Directional buttons are color-coded
+
+Level 2: Colorless Sequence
+- Colors remain static
+- Character positions remain static
+- Sequence characters appear in gray
+- Players must match gray sequence characters with colored grid characters
+- Directional buttons remain color-coded
+
+Level 3: Color Rotation
+- Colors rotate after each correct input
+- Character positions remain static
+- Players must adapt to changing color-direction relationships
+- All visual aids remain available
+
+Level 4: Position Shuffle
+- Colors rotate after each correct input
+- Characters shuffle positions after each correct input
+- Players must find characters in new positions while tracking color changes
+- All visual aids remain available
+
+Level 5: Memory Master
+- Colors rotate after each correct input
+- Characters shuffle positions after each correct input
+- Sequence characters appear in gray
+- Directional buttons lose their colors
+- Players must rely entirely on memory for color-direction mapping
+
+Level 6: Ultimate Memory
+- Colors rotate after each correct input
+- Characters shuffle positions after each correct input
+- Sequence is completely hidden
+- Directional buttons remain colorless
+- Players must remember both the sequence and the color-direction mapping

@@ -1,0 +1,46 @@
+steps:
+  # Step 1: Create a temporary file with variables that will be copied into the Docker build
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Create .env file with actual values from secrets
+        echo "RESEND_API_KEY=\"$$RESEND_API_KEY\"" >> build.env
+        echo "NEXT_PUBLIC_PASSKEY_ENC_SALT=\"$$NEXT_PUBLIC_PASSKEY_ENC_SALT\"" >> build.env
+        echo "NEXT_PUBLIC_VERIFIER_SECRET=\"$$NEXT_PUBLIC_VERIFIER_SECRET\"" >> build.env
+        cat build.env
+    secretEnv: [
+      'RESEND_API_KEY',
+      'NEXT_PUBLIC_PASSKEY_ENC_SALT',
+      'NEXT_PUBLIC_VERIFIER_SECRET'
+    ]
+
+  # Build the container image - using --env-file instead of build-args
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '--build-arg', 'ENV_FILE=build.env',
+      '-t', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}',
+      '.'
+    ]
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}']
+
+substitutions:
+  _SERVICE_NAME: referral-dashboard
+
+images:
+  - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}'
+
+# Define available secrets
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/NEXT_PUBLIC_PASSKEY_ENC_SALT/versions/latest
+      env: 'NEXT_PUBLIC_PASSKEY_ENC_SALT'
+    - versionName: projects/$PROJECT_ID/secrets/RESEND_API_KEY/versions/latest
+      env: 'RESEND_API_KEY'
+    - versionName: projects/$PROJECT_ID/secrets/NEXT_PUBLIC_VERIFIER_SECRET/versions/latest
+      env: 'NEXT_PUBLIC_VERIFIER_SECRET'
