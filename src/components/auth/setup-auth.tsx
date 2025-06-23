@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthHook } from "@/src/hooks/use-auth-hook";
 import { usePasswordValidation } from "@/src/hooks/use-pw-validation";
@@ -32,7 +32,7 @@ interface SetupAuthProps {
 }
 
 export default function SetupAuth({ isVisible = true }: SetupAuthProps) {
-  const { password, error: passwordError, setError, handlePasswordChange, validatePassword, validatePasswordLength } = usePasswordValidation();
+  const { password, error: passwordError, setError, handlePasswordChange, validatePassword, validatePasswordLength, resetPassword } = usePasswordValidation();
   const [colorBearings, setColorBearings] = useState<ColorBearing[]>([]);
   const [step, setStep] = useState<"password" | "mapping" | "review">("password");
   const [activeColor, setActiveColor] = useState<keyof typeof COLORS | null>(null);
@@ -81,19 +81,6 @@ export default function SetupAuth({ isVisible = true }: SetupAuthProps) {
       setDialogState(null);
     }
   }, [authState.isCreatingWallet, authState.walletCreated, authState.error]);
-
-  const handleContinueWithExisting = () => {
-    // Emit custom event to transition to working auth
-    window.dispatchEvent(new CustomEvent("authSetupComplete"));
-  };
-
-  const handleCreateNewWallet = () => {
-    // Clear existing credentials
-    localStorage.removeItem("c1ph3r_encrypted_directions");
-    localStorage.removeItem("c1ph3r_encrypted_password");
-    localStorage.removeItem("encrypted_wallet_data");
-    setShowWalletExistsDialog(false);
-  };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,10 +169,20 @@ export default function SetupAuth({ isVisible = true }: SetupAuthProps) {
 
   // Add handleReassign function after handleRetry
   const handleReassign = () => {
+    // Reset all auth state
+    resetAuthState();
+    setDialogState(null);
+    
+    // Reset password validation state
+    resetPassword();
+    
+    // Reset color mappings
     setColorBearings([]);
     setCurrentColorIndex(0);
-    setActiveColor(Object.keys(COLORS)[0] as keyof typeof COLORS);
-    setStep("mapping");
+    setActiveColor(null);
+    
+    // Go back to the password step to start completely over
+    setStep("password");
   };
 
   useEffect(() => {
@@ -224,39 +221,6 @@ export default function SetupAuth({ isVisible = true }: SetupAuthProps) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8">
-      {showWalletExistsDialog && isVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="w-full max-w-2xl mx-auto"
-        >
-          <div className="bg-black/80 rounded-lg p-8 backdrop-blur-sm">
-            <div className="space-y-6 text-center mb-8">
-              <h1 className="text-white text-3xl font-bold">
-                Existing Wallet Detected
-              </h1>
-              <p className="text-white/70 text-lg leading-relaxed">
-                You already have a wallet setup with custom credentials. What would you like to do?
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                onClick={handleContinueWithExisting}
-                className="w-full bg-white/10 text-white hover:bg-white/20 text-lg px-8 py-6"
-              >
-                Continue with Existing
-              </Button>
-              <Button
-                onClick={handleCreateNewWallet}
-                className="w-full bg-red-400/10 text-red-400 hover:bg-red-400/20 text-lg px-8 py-6"
-              >
-                Create New Wallet
-              </Button>
-            </div>
-          </div>
-        </motion.div>
-      )}
 
       <AnimatePresence mode="wait">
         {step === "password" && !showWalletExistsDialog && isVisible && (
@@ -297,7 +261,7 @@ export default function SetupAuth({ isVisible = true }: SetupAuthProps) {
                   type="submit"
                   disabled={!password}
                   variant="default"
-                  className="w-full text-lg px-8 py-6"
+                  className="w-full text-lg px-8 py-6 rounded-none"
                 >
                   Continue
                 </Button>
@@ -534,7 +498,7 @@ export default function SetupAuth({ isVisible = true }: SetupAuthProps) {
                       setActiveColor(null);
                     }}
                     variant="default"
-                    className="w-full"
+                    className="w-full rounded-none"
                   >
                     Cancel
                   </Button>
@@ -568,7 +532,8 @@ export default function SetupAuth({ isVisible = true }: SetupAuthProps) {
                 <DialogFooter className="w-full">
                   <Button
                     onClick={handleRetry}
-                    className="w-full bg-red-400/10 text-red-400 hover:bg-red-400/20"
+                    variant="destructive"
+                    className="w-full rounded-none"
                   >
                     Try Again
                   </Button>

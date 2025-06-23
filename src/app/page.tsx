@@ -77,7 +77,7 @@ export default function App() {
 
 				<div className="absolute bottom-20 left-1/2 -translate-x-1/2">
 					<div className="w-10 h-10 border border-white/50 rounded-full flex items-center justify-center">
-						<ChevronDown className="w-6 h-6" />
+						<ChevronDown className="w-6 h-6 text-white" />
 					</div>
 				</div>
 			</section>
@@ -93,6 +93,7 @@ export default function App() {
 					</Typography>
 					<Button
 						variant="default"
+						onClick={scrollDown}
 						className="bg-black border border-white/10 text-white rounded-none hover:bg-white/10 px-8 py-6 text-lg font-normal"
 					>
 						Try Pentagon<sup className="text-xs ml-1">™</sup>

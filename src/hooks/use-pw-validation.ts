@@ -40,6 +40,11 @@ export function usePasswordValidation() {
     return true;
   };
 
+  const resetPassword = () => {
+    setPassword("");
+    setError("");
+  };
+
   return {
     password,
     error,
@@ -47,5 +52,6 @@ export function usePasswordValidation() {
     handlePasswordChange,
     validatePasswordLength,
     validatePassword,
+    resetPassword,
   };
 } 
