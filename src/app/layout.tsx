@@ -1,7 +1,7 @@
 import "./globals.css";
-import type {Metadata, Viewport} from "next";
-import {Geist} from "next/font/google";
-import {Toaster} from "@/ui/toaster";
+import type { Metadata, Viewport } from "next";
+import { Poppins } from "next/font/google";
+import { Toaster } from "@/ui/toaster";
 
 const defaultUrl = "https://usepentagon.com";
 
@@ -92,9 +92,10 @@ export const generateHeaders = {
 	],
 };
 
-const geistSans = Geist({
-	display: "swap",
+const poppins = Poppins({
 	subsets: ["latin"],
+	display: "swap",
+	weight: ["400", "500", "600", "700"],
 });
 
 export default async function RootLayout({
@@ -106,7 +107,7 @@ export default async function RootLayout({
 	return (
 		<html
 			lang="en"
-			className={geistSans.className}
+			className={poppins.className}
 			suppressHydrationWarning
 		>
 			<body className="bg-black">
