@@ -12,7 +12,7 @@ export function useSectionNavigation(totalSections: number) {
       // Reset transition flag after animation
       setTimeout(() => {
         setIsTransitioning(false);
-      }, 400);
+      }, 600);
     }
   }, [currentSection, totalSections, isTransitioning]);
 

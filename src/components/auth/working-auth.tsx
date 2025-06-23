@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useAuthHook } from "@/src/hooks/use-auth-hook";
 import { COLORS } from "@/src/constants/auth";
 import { CoinAuth } from "c1ph3r_c01n";
 import { Button } from "@/ui/button";
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, CheckCircle, XCircle, CircleUser, ChevronDown } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/ui/dialog";
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, CheckCircle, XCircle, CircleUser } from "lucide-react";
 
 // Add keyboard mapping constant
 const KEYBOARD_TO_DIRECTION = {
@@ -66,24 +67,19 @@ export default function WorkingAuth() {
 	const [selectedDirections, setSelectedDirections] = useState<string[]>([]);
 	const [currentRound, setCurrentRound] = useState(0);
 	const [roundData, setRoundData] = useState<AuthRound | null>(null);
-	const [showError, setShowError] = useState(false);
-	const [isLoading, setIsLoading] = useState(false); // Changed initial state to false
+
+	const [isLoading, setIsLoading] = useState(false);
 	const [characters, setCharacters] = useState<{ char: string; color: keyof typeof COLORS }[]>([]);
 	const [sdk, setSdk] = useState<CoinAuth | null>(null);
 	const { getAuthRound, resolveCurrentRound, resetAuthState } = useAuthHook();
 	const [isTransitioning, setIsTransitioning] = useState(false);
-	const [colorOffset, setColorOffset] = useState(0);
-	const [isShuffling, setIsShuffling] = useState(false);
-	const [showSequence, setShowSequence] = useState(false);
-	const [revealIndex, setRevealIndex] = useState(-1);
-	const [gameState, setGameState] = useState<'idle' | 'initializing' | 'playing' | 'completed'>('idle');
+	const [authState, setAuthState] = useState<'idle' | 'initializing' | 'playing' | 'completed'>('idle');
 	const [resultMessage, setResultMessage] = useState({
 		title: "",
 		description: "",
 		status: "" as "success" | "error" | "",
 	});
 	const [showResultDialog, setShowResultDialog] = useState(false);
-	const [showCompletionDialog, setShowCompletionDialog] = useState(false);
 
 	// Reset auth state when component unmounts
 	useEffect(() => {
@@ -91,8 +87,6 @@ export default function WorkingAuth() {
 			resetAuthState();
 		};
 	}, []);
-
-	console.log("roundData", roundData);
 
 	// Memoized character generation to avoid recalculation
 	const generateNewChallenge = useCallback((roundData: ColorAssignment) => {
@@ -128,15 +122,37 @@ export default function WorkingAuth() {
 		setCharacters(newCharacters);
 	}, []);
 
+	// Handle error dialog close
+	const handleErrorDialogClose = useCallback(() => {
+		setShowResultDialog(false);
+		setResultMessage({ title: "", description: "", status: "" });
+		// Reset to idle state and scroll back to this section
+		setAuthState('idle');
+		resetAuthState();
+		
+		// Scroll back to this section after a brief delay
+		setTimeout(() => {
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}, 100);
+	}, [resetAuthState]);
+
 	// Function to start authentication with optimized state updates
 	const startAuthentication = useCallback(async () => {
-		// Immediately show loading state for better perceived performance
-		setGameState('initializing');
+		// Force immediate state update and re-render
 		setIsLoading(true);
-		setShowError(false);
+		setAuthState('initializing');
+		
+		// Add a small delay to ensure the UI updates
+		await new Promise(resolve => setTimeout(resolve, 50));
 
 		try {
-			const { newAuthRound, sdk: newSdk } = await getAuthRound();
+			// Ensure minimum loading time for better UX
+			const [authResult] = await Promise.all([
+				getAuthRound(),
+				new Promise(resolve => setTimeout(resolve, 800)) // Minimum 800ms loading time
+			]);
+
+			const { newAuthRound, sdk: newSdk } = authResult;
 			
 			if (!newSdk) {
 				throw new Error("Failed to initialize SDK");
@@ -157,25 +173,35 @@ export default function WorkingAuth() {
 			generateNewChallenge(newAuthRound.colorAssignment as unknown as ColorAssignment);
 			
 			// Final state updates
-			setGameState('playing');
 			setIsLoading(false);
+			setAuthState('playing');
 			
 		} catch (err) {
 			console.error("Failed to initialize authentication:", err);
 			
 			// Batch error state updates
-			setShowError(true);
 			setIsLoading(false);
-			setGameState('idle'); // Return to idle state on error
+			setAuthState('idle'); // Return to idle state on error
 			
-			if (!(err instanceof Error && err.message.includes("cancelled"))) {
-				setTimeout(() => {
-					setShowError(false);
-					resetAuthState();
-				}, 2000);
+			// Set error dialog message
+			let errorMessage = "Authentication failed. Please try again.";
+			if (err instanceof Error && err.message.includes("cancelled")) {
+				errorMessage = "Authentication was cancelled.";
 			}
+			
+			setResultMessage({
+				title: "Authentication Failed",
+				description: errorMessage,
+				status: "error"
+			});
+			setShowResultDialog(true);
+			
+			// Auto-close the dialog after 2 seconds
+			setTimeout(() => {
+				handleErrorDialogClose();
+			}, 2000);
 		}
-	}, [getAuthRound, generateNewChallenge, resetAuthState]);
+	}, [getAuthRound, generateNewChallenge, resetAuthState, handleErrorDialogClose]);
 
 	// Memoized colors array to avoid repeated object key lookups
 	const colorKeys = useMemo(() => Object.keys(COLORS) as Array<keyof typeof COLORS>, []);
@@ -185,28 +211,8 @@ export default function WorkingAuth() {
 		return colorKeys[Math.floor(Math.random() * colorKeys.length)];
 	}, [colorKeys]);
 
-	// Update showColorShuffleAnimation to be continuous
-	const showColorShuffleAnimation = useCallback(() => {
-		setIsShuffling(true);
-		return setInterval(() => {
-			setColorOffset((prev) => (prev + 1) % 4);
-		}, 200);
-	}, []);
-
-	// Function to get color with shuffle effect - memoized
-	const getColorWithShuffle = useCallback((color: keyof typeof COLORS): string => {
-		if (isShuffling) {
-			const colorIndex = colorKeys.indexOf(color);
-			if (colorIndex === -1) return COLORS[color];
-			const rotatedIndex = (colorIndex + colorOffset) % colorKeys.length;
-			const rotatedColor = colorKeys[rotatedIndex];
-			return COLORS[rotatedColor];
-		}
-		return COLORS[color];
-	}, [isShuffling, colorOffset, colorKeys]);
-
 	const handleDirectionSelect = useCallback(async (direction: string) => {
-		if (showError || !sdk || !roundData?.colorAssignment) return;
+		if (showResultDialog || !sdk || !roundData?.colorAssignment) return;
 
 		const newSelectedDirections = [...selectedDirections, direction];
 		setSelectedDirections(newSelectedDirections);
@@ -214,7 +220,7 @@ export default function WorkingAuth() {
 
 		try {
 			setIsTransitioning(true);
-			shuffleInterval = showColorShuffleAnimation();
+			// shuffleInterval = showColorShuffleAnimation();
 
 			const currentDirection = direction[0].toLowerCase();
 			const roundResult = await resolveCurrentRound(sdk, currentDirection);
@@ -224,15 +230,15 @@ export default function WorkingAuth() {
 			}
 			
 			// Batch animation state updates
-			setIsShuffling(false);
+			// setIsShuffling(false);
 			setIsTransitioning(false);
-			setColorOffset(0);
+			// setColorOffset(0);
 
 			// Process round result
 			if ('verificationResponse' in roundResult && roundResult.verificationResponse !== null) {
 				if (roundResult.verificationResponse.verificationResult.verification_result) {
 					// Set game state to completed
-					setGameState('completed');
+					setAuthState('completed');
 				} else {
 					setResultMessage({
 						title: "Authentication Failed",
@@ -241,8 +247,8 @@ export default function WorkingAuth() {
 					});
 					setShowResultDialog(true);
 					setTimeout(() => {
-						window.location.reload();
-					}, 1500);
+						handleErrorDialogClose();
+					}, 2000);
 				}
 			} else if ('colorAssignment' in roundResult && roundResult.colorAssignment) {
 				// If no verification response, this is a new round
@@ -264,9 +270,9 @@ export default function WorkingAuth() {
 			}
 			
 			// Batch error state updates
-			setIsShuffling(false);
+			// setIsShuffling(false);
 			setIsTransitioning(false);
-			setColorOffset(0);
+			// setColorOffset(0);
 			
 			console.error("Failed to process round:", err);
 			setResultMessage({
@@ -276,16 +282,16 @@ export default function WorkingAuth() {
 			});
 			setShowResultDialog(true);
 			setTimeout(() => {
-				window.location.reload();
-			}, 1500);
+				handleErrorDialogClose();
+			}, 2000);
 		}
-	}, [showError, sdk, roundData, selectedDirections, showColorShuffleAnimation, resolveCurrentRound, currentRound, generateNewChallenge]);
+	}, [showResultDialog, sdk, roundData, selectedDirections, resolveCurrentRound, currentRound, generateNewChallenge, handleErrorDialogClose]);
 
 	// Optimized keyboard event handler
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			// Only handle keyboard events when the game is actively playing
-			if (gameState !== 'playing' || showError) return;
+			if (authState !== 'playing' || showResultDialog) return;
 			
 			const direction = KEYBOARD_TO_DIRECTION[e.code as keyof typeof KEYBOARD_TO_DIRECTION];
 			if (!direction) return;
@@ -298,12 +304,12 @@ export default function WorkingAuth() {
 		};
 
 		// Only add event listener when game is playing
-		if (gameState === 'playing' && !showError) {
+		if (authState === 'playing' && !showResultDialog) {
 			window.addEventListener("keydown", handleKeyDown);
 		}
 		
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleDirectionSelect, showError, gameState]);
+	}, [handleDirectionSelect, showResultDialog, authState]);
 
 	// Character Box Component with optimized re-renders
 	const CharacterBox = useMemo(() => {
@@ -330,6 +336,7 @@ export default function WorkingAuth() {
 						py-2 sm:py-4 md:py-6 px-4 sm:px-6 md:px-8
 						rounded-lg shadow-lg border
 						transition-colors duration-500
+						font-mono
 					`}
 					style={{ 
 						color: COLORS[currentColor],
@@ -348,31 +355,8 @@ export default function WorkingAuth() {
 		};
 	}, [isTransitioning, currentRound, getRandomColor]);
 
-	// Start the sequence reveal when game begins
-	const startSequenceReveal = useCallback(() => {
-		setTimeout(() => {
-			setShowSequence(true);
-			let currentIndex = 0;
-			const revealInterval = setInterval(() => {
-				if (currentIndex >= roundData!.colorAssignment.round) {
-					clearInterval(revealInterval);
-					setShowSequence(false);
-					return;
-				}
-				setRevealIndex(currentIndex);
-				currentIndex++;
-			}, 800);
-		}, 1000);
-	}, [roundData]);
-
-	// Handle navigation to next section
-	const handleNextSection = useCallback(() => {
-		// Dispatch a custom event to notify the parent component to scroll to next section
-		window.dispatchEvent(new CustomEvent('navigateToNextSection'));
-	}, []);
-
 	// Show initial "Access Account" button with immediate feedback
-	if (gameState === 'idle') {
+	if (authState === 'idle' || authState === 'initializing' || isLoading) {
 		return (
 			<div className="min-h-screen flex flex-col items-center justify-center p-8">
 				<motion.div
@@ -382,12 +366,13 @@ export default function WorkingAuth() {
 				>
 					<div className="flex flex-col items-center space-y-6 text-center">
 						<Button
+							key={`access-btn-${isLoading}-${authState}`}
 							onClick={startAuthentication}
 							variant="default"
-							disabled={isLoading}
-							className="w-full text-lg px-8 py-6 bg-white hover:bg-white/70 text-black disabled:opacity-50 disabled:cursor-not-allowed rounded-none"
+							disabled={isLoading || authState === 'initializing'}
+							className="w-full text-lg px-8 py-6 bg-white hover:bg-white/70 text-black disabled:opacity-50 disabled:cursor-not-allowed rounded-none transition-opacity duration-200"
 						>
-							{isLoading ? (
+							{isLoading || authState === 'initializing' ? (
 								<>
 									<div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent mr-2" />
 									Authenticating...
@@ -399,44 +384,6 @@ export default function WorkingAuth() {
 								</>
 							)}
 						</Button>
-						
-						{showError && (
-							<motion.div
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								className="w-full p-4 bg-red-400/10 border border-red-400/20 rounded-lg"
-							>
-								<div className="flex items-center gap-2 text-red-400">
-									<XCircle className="w-4 h-4 flex-shrink-0" />
-									<p className="text-sm">
-										Authentication failed. Please try again.
-									</p>
-								</div>
-							</motion.div>
-						)}
-					</div>
-				</motion.div>
-			</div>
-		);
-	}
-
-	// Show loading state with faster transition
-	if (isLoading || gameState === 'initializing') {
-		return (
-			<div className="min-h-screen flex flex-col items-center justify-center p-8">
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.2 }} // Faster transition
-					className="w-full max-w-md mx-auto"
-				>
-					<div className="border-emerald-400/20 bg-black/80 border rounded-lg p-8 backdrop-blur-sm">
-						<div className="flex flex-col items-center space-y-4 text-center">
-							<div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-400 border-t-transparent" />
-							<p className="text-emerald-400">
-								Authenticating...
-							</p>
-						</div>
 					</div>
 				</motion.div>
 			</div>
@@ -444,7 +391,7 @@ export default function WorkingAuth() {
 	}
 
 	// Show completion state
-	if (gameState === 'completed') {
+	if (authState === 'completed') {
 		return (
 			<div className="min-h-screen flex flex-col items-center justify-center p-8">
 				<motion.div
@@ -483,14 +430,11 @@ export default function WorkingAuth() {
 								transition={{ delay: 0.6 }}
 								className="w-full"
 							>
-								<Button
-									onClick={handleNextSection}
-									variant="default"
-									className="w-full"
-								>
-									Continue
-									<ChevronDown className="w-4 h-4 ml-2" />
-								</Button>
+								<a href="mailto:arvin@usepentagon.com?subject=I%20solved%20it!&body=I%20successfully%20completed%20the%20Pentagon%20authentication%20challenge.">
+									<Button variant="default" className="w-full rounded-none">
+										arvin@usepentagon.com
+									</Button>
+								</a>
 							</motion.div>
 						</div>
 					</div>
@@ -501,9 +445,8 @@ export default function WorkingAuth() {
 
 	return (
 		<div className="min-h-screen flex flex-col items-center justify-center p-8">
-			{/* <div dangerouslySetInnerHTML={{ __html: hasCustomCredentials }} /> */}
 			
-			{gameState === 'playing' && (
+			{authState === 'playing' && (
 				<div className="flex flex-col items-center justify-center space-y-6">
 					{/* Progress/Input Boxes */}
 					<motion.div
@@ -514,37 +457,18 @@ export default function WorkingAuth() {
 						{roundData?.colorAssignment && Array.from({ length: roundData.colorAssignment.round }).map((_, i) => (
 							<div
 								key={i}
-								style={{
-									borderColor: i < selectedDirections.length
-										? "rgba(52, 211, 153, 0.4)"
-										: "rgba(52, 211, 153, 0.1)",
-									backgroundColor: i < selectedDirections.length
-										? "rgba(52, 211, 153, 0.05)"
-										: "transparent",
-								}}
-								className={`
-									w-10 h-10 sm:w-12 sm:h-12 border-2
-									${i === currentRound ? "ring-4 ring-white/30 scale-110" : ""}
-									rounded-lg flex items-center justify-center 
+								className="
+									bg-black/10 rounded-lg w-10 h-10 sm:w-12 sm:h-12 border-2 border-white/60
+									flex items-center justify-center 
 									text-lg sm:text-xl font-bold
-									transition-all duration-200
-								`}
+									transition-all duration-200"
 							>
-								{showSequence && i <= revealIndex ? (
+								{i < selectedDirections.length && (
 									<motion.span
 										initial={{ scale: 0, opacity: 0 }}
 										animate={{ scale: 1, opacity: 1 }}
 										transition={{ duration: 0.2 }}
-										className="text-emerald-400"
-									>
-										{roundData.colorAssignment.rotated_alphabet[i]}
-									</motion.span>
-								) : i < selectedDirections.length && (
-									<motion.span
-										initial={{ scale: 0, opacity: 0 }}
-										animate={{ scale: 1, opacity: 1 }}
-										transition={{ duration: 0.2 }}
-										className="text-emerald-400"
+										className="text-white mt-2"
 									>
 										*
 									</motion.span>
@@ -588,12 +512,7 @@ export default function WorkingAuth() {
 										e.preventDefault();
 										handleDirectionSelect(direction);
 									}}
-									style={{
-										backgroundColor: "rgba(255, 255, 255, 0.05)",
-										color: "rgba(255, 255, 255, 0.05)",
-										borderColor: "rgba(255, 255, 255, 0.1)",
-									}}
-									className="w-full aspect-square active:scale-95 transition-all duration-200 group-hover:scale-105 hover:bg-white/10"
+									className="bg-black/10 border-white/60 text-white/60 w-full aspect-square active:scale-95 transition-all duration-200 group-hover:scale-105 hover:bg-white/10"
 								>
 									{direction === "UP" && (
 										<ArrowUp className="h-8 w-8 sm:h-8 sm:w-8 text-white group-hover:animate-pulse" />
@@ -614,32 +533,30 @@ export default function WorkingAuth() {
 				</div>
 			)}
 
-			{/* Result State */}
-			{showResultDialog && (
-				<div className="fixed inset-0 flex items-center justify-center p-8 z-50">
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="w-full max-w-md mx-auto"
-					>
-						<div className={`border-${resultMessage.status === 'success' ? 'emerald' : 'red'}-400/20 bg-black/80 border rounded-lg p-8 backdrop-blur-sm`}>
-							<div className="flex flex-col items-center gap-6 text-center">
-								{resultMessage.status === 'success' ? (
-									<CheckCircle className="w-16 h-16 text-emerald-400" />
-								) : (
-									<XCircle className="w-16 h-16 text-red-400" />
-								)}
-								<h1 className={`text-${resultMessage.status === 'success' ? 'emerald' : 'red'}-400 text-3xl font-bold`}>
-									{resultMessage.title}
-								</h1>
-								<p className={`text-${resultMessage.status === 'success' ? 'emerald' : 'red'}-400/70 text-lg leading-relaxed`}>
-									{resultMessage.description}
-								</p>
-							</div>
+			<Dialog open={showResultDialog} onOpenChange={() => {}}>
+				<DialogContent className="bg-black/90 border-white/20 max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+					<DialogTitle className="sr-only">
+						{resultMessage.status === 'error' ? 'Error' : 'Result'}
+					</DialogTitle>
+					
+					<div className="flex flex-col items-center space-y-6 text-center p-6">
+						{resultMessage.status === 'error' ? (
+							<XCircle className="w-16 h-16 text-red-400" />
+						) : (
+							<CheckCircle className="w-16 h-16 text-emerald-400" />
+						)}
+						
+						<div className="space-y-2">
+							<DialogTitle className={`${resultMessage.status === 'error' ? 'text-red-400' : 'text-emerald-400'} text-xl font-bold`}>
+								{resultMessage.title || "Result"}
+							</DialogTitle>
+							<DialogDescription className={`${resultMessage.status === 'error' ? 'text-red-400/70' : 'text-emerald-400/70'} text-sm`}>
+								{resultMessage.description || "Authentication failed. Please try again."}
+							</DialogDescription>
 						</div>
-					</motion.div>
-				</div>
-			)}
+					</div>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

@@ -111,7 +111,7 @@ export default async function RootLayout({
 			suppressHydrationWarning
 		>
 			<body className="bg-black">
-				<main className="min-h-screen bg-black font-mono">
+				<main className="min-h-screen bg-black">
 					<div className="max-w-7xl mx-auto">
 						{children}
 					</div>
