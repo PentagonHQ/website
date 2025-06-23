@@ -1,86 +1,161 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, lazy, Suspense, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import FullScreenScroller from "@/components/ui/full-screen-scroller";
+import { useSectionNavigation } from "@/hooks/use-section-navigation";
+import { Typography } from "../components/ui/typography";
+import { ChevronDown } from "lucide-react";
 
-// Pentagon Logo Component
+const AuthFlow = lazy(() => import("../components/auth/auth-flow"));
+
 const PentagonLogo = ({ className }: { className?: string }) => (
 	<div className={`flex items-center gap-3 ${className}`}>
-		<div className="relative">
-			<svg
-				width="40"
-				height="40"
-				viewBox="0 0 40 40"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-				className="text-white"
-			>
-				<path
-					d="M20 2L37 14L31 34H9L3 14L20 2Z"
-					fill="currentColor"
-					stroke="currentColor"
-					strokeWidth="1"
-				/>
-				{/* Inner design */}
-				<path
-					d="M20 8L30 16L26 28H14L10 16L20 8Z"
-					fill="none"
-					stroke="black"
-					strokeWidth="1.5"
-				/>
-			</svg>
-		</div>
-		<span className="text-xl font-bold text-white">
-			Pentagon<sup className="text-2xl">™</sup>
-		</span>
+		<Image
+			src="/pentagon_logo_white.svg"
+			alt="Pentagon Logo"
+			width={240}
+			height={240}
+		/>
 	</div>
 );
 
+// Loading component for AuthFlow - ensures consistent height
+const AuthFlowLoading = () => (
+	<section className="relative min-h-screen bg-black flex flex-col">
+		<div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+			<div className="max-w-4xl mx-auto space-y-8">
+				<div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto" />
+				<p className="text-lg text-gray-400">Initializing secure authentication...</p>
+			</div>
+		</div>
+	</section>
+);
+
 export default function App() {
+	const { currentSection, scrollUp, scrollDown } = useSectionNavigation(4);
+
+	// Listen for navigation events from auth component
+	useEffect(() => {
+		const handleNavigateToNextSection = () => {
+			scrollDown();
+		};
+
+		window.addEventListener('navigateToNextSection', handleNavigateToNextSection);
+
+		return () => {
+			window.removeEventListener('navigateToNextSection', handleNavigateToNextSection);
+		};
+	}, [scrollDown]);
+
+	const sections = [
+		<FullScreenScroller key="hero" onScrollUp={scrollUp} onScrollDown={scrollDown}>
+			<section className="relative min-h-screen bg-black flex flex-col">
+				<header className="absolute top-0 left-0 right-0 z-10 p-4">
+					<div className="max-w-7xl mx-auto flex justify-between items-center">
+						<PentagonLogo />
+						<Button
+							variant="outline"
+							className="bg-white text-black rounded-none hover:bg-white/90 px-6"
+						>
+							Explore the research
+						</Button>
+					</div>
+				</header>
+
+				<div className="flex-1 flex flex-col items-center justify-center px-6 text-center pb-20">
+					<div className="max-w-4xl mx-auto space-y-6">
+						<Typography variant="h1" className="text-white">
+							Authentication for the ASI era
+						</Typography>
+						<Typography variant="lead" className="text-gray-400">
+							secret keys that are never exposed.
+						</Typography>
+					</div>
+				</div>
+
+				<div className="absolute bottom-20 left-1/2 -translate-x-1/2">
+					<div className="w-10 h-10 border border-white/50 rounded-full flex items-center justify-center">
+						<ChevronDown className="w-6 h-6" />
+					</div>
+				</div>
+			</section>
+		</FullScreenScroller>,
+
+		<FullScreenScroller key="info" onScrollUp={scrollUp} onScrollDown={scrollDown}>
+			<section className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center">
+				<div className="max-w-3xl mx-auto space-y-6">
+					<Typography variant="h3" className="text-white leading-loose font-normal tracking-wider">
+						imagine a malicious actor knowing a person's password, watching the person login,
+						<br />
+						and never being able to compromise the account
+					</Typography>
+					<Button
+						variant="default"
+						className="bg-black border border-white/10 text-white rounded-none hover:bg-white/10 px-8 py-6 text-lg font-normal"
+					>
+						Try Pentagon<sup className="text-xs ml-1">™</sup>
+					</Button>
+				</div>
+			</section>
+		</FullScreenScroller>,
+
+		<FullScreenScroller key="auth" onScrollUp={scrollUp} onScrollDown={scrollDown}>
+			<div className="relative min-h-screen bg-black">
+				{currentSection >= 1 ? (
+					<Suspense fallback={<AuthFlowLoading />}>
+						<AuthFlow />
+					</Suspense>
+				) : (
+					<AuthFlowLoading />
+				)}
+			</div>
+		</FullScreenScroller>,
+
+		<FullScreenScroller key="final" onScrollUp={scrollUp} onScrollDown={scrollDown}>
+			<section className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center">
+				<div className="flex-1 flex flex-col items-center justify-center px-6 text-left">
+					<div className="max-w-7xl mx-auto space-y-2">
+						<p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
+							Exclusively engineered for entities that cannot afford compromise.
+						</p>
+						<p className="text-lg md:text-xl text-white font-bold leading-relaxed max-w-4xl mx-auto">
+							White-glove onboarding only.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<footer className="absolute bottom-0 left-0 right-0 p-4">
+				<div className="max-w-7xl mx-auto flex justify-between items-center text-sm text-gray-500">
+					<Typography variant="small">© {new Date().getFullYear()}</Typography>
+					<div className="flex-grow border-t border-gray-700 mx-4"></div>
+					<Typography variant="small">Pentagon AI, Inc</Typography>
+				</div>
+			</footer>
+		</FullScreenScroller>
+	];
+
 	return (
 		<Fragment>
-			<div className="relative">
-
-				<section className="relative min-h-screen bg-black flex flex-col">
-					<header className="absolute top-0 left-0 right-0 z-10 p-6">
-						<div className="max-w-7xl mx-auto flex justify-between items-center">
-							<PentagonLogo />
-							<Button
-								variant="default"
-								className="bg-white text-black rounded-none hover:bg-white/90"
-							>
-								Explore the research
-							</Button>
+			<div className="relative w-full h-screen overflow-hidden">
+				<div
+					className="flex flex-col transition-transform duration-700 ease-in-out"
+					style={{
+						transform: `translateY(-${currentSection * 100}vh)`,
+						height: `${sections.length * 100}vh`
+					}}
+				>
+					{sections.map((section, index) => (
+						<div
+							key={index}
+							className="w-full h-screen flex-shrink-0"
+						>
+							{section}
 						</div>
-					</header>
-
-					<div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-						<div className="max-w-4xl mx-auto space-y-8">
-							<h1 className="text-4xl font-bold text-white leading-tight">
-								Authentication for the{" "}
-								<span className="text-gray-300">ASI era</span>
-							</h1>
-							
-							<p className="text-lg text-gray-400 max-w-2xl mx-auto">Secret keys that are never exposed.</p>
-							<p className="text-lg text-gray-400 max-w-2xl mx-auto">Imagine a malicious actor knowing a person's password, watching the person login, and never being able to compromise the account. This is the future of authentication.</p>
-						</div>
-					</div>
-				</section>
-
-				<section className="relative min-h-screen bg-black flex flex-col">
-					<div className="flex-1 flex flex-col items-center justify-center px-6 text-left">
-						<div className="max-w-4xl mx-auto space-y-12">
-							<p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
-								Exclusively engineered for entities that cannot afford compromise.
-							</p>
-							<p className="text-lg md:text-xl text-white font-bold leading-relaxed max-w-3xl mx-auto">
-								White-glove onboarding only.
-							</p>
-						</div>
-					</div>
-
-				</section>
-
+					))}
+				</div>
 			</div>
 		</Fragment>
 	);
