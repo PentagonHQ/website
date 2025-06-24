@@ -18,7 +18,7 @@ const PentagonLogo = ({ className }: { className?: string }) => (
 );
 
 export default function HeroSection() {
-	const terms = ["ASI", "AGI", "ML", "LLM", "AI", "digital", "autonomy", "superintelligence", "hyperintelligence", "posthuman"];
+	const terms = ["ASI", "AGI", "ML", "LLM", "AI", "digital", "autonomy", "superintelligence"];
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isFading, setIsFading] = useState(false);
 
@@ -42,7 +42,7 @@ export default function HeroSection() {
 						<PentagonLogo />
 						<Button
 							variant="outline"
-							className="bg-white text-black rounded-none hover:bg-white/90 px-6"
+							className="btn-liquid-glass rounded-none px-4 py-2 text-sm md:px-6 md:py-2 md:text-base"
 						>
 							Explore the research
 						</Button>
@@ -62,7 +62,7 @@ export default function HeroSection() {
 
 				<div className="absolute bottom-20 left-1/2 -translate-x-1/2">
 					<div
-						className="w-10 h-10 border border-white/50 rounded-full flex items-center justify-center cursor-pointer"
+						className="w-10 h-10 border border-white/50 rounded-full flex items-center justify-center cursor-pointer animate-pulse"
 						onClick={() => {
 							window.dispatchEvent(new CustomEvent('navigateToNextSection'));
 						}}

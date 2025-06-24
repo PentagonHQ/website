@@ -58,14 +58,13 @@ export default function AuthFlow() {
             }, 0);
         };
 
-        checkExistingCredentials();
-
         // Set up intersection observer for scroll-based visibility
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
                         setIsSetupVisible(true);
+                        checkExistingCredentials();
                     }
                 });
             },
@@ -151,4 +150,4 @@ export default function AuthFlow() {
             </AnimatePresence>
         </div>
     );
-} 
+}

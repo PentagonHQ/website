@@ -1,8 +1,8 @@
 import {useEffect} from "react";
 import {useParams} from "next/navigation";
-import MobiusGame from "../app/game/[level]/mobius-game";
+// import MobiusGame from "../app/game/[level]/mobius-game";
 import {useGameStore} from "@/store/use-game-store";
-import {GameDialog} from "../app/game/[level]/game-dialog";
+// import {GameDialog} from "../app/game/[level]/game-dialog";
 
 interface GameProps {
 	onVerifyDirection?: (direction: string) => Promise<boolean>;
@@ -34,8 +34,8 @@ export function Game({ onVerifyDirection }: GameProps) {
 			<div className="fixed inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-900/20 via-black to-black" />
 			
 			<div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-8">
-				<GameDialog type="level" />
-				<MobiusGame 
+				{/* <GameDialog type="level" /> */}
+				{/* <MobiusGame 
 					password="COINFI" 
 					bearing={{
 						up: {color: "rgba(234, 179, 8, 1)", key: "w"},    // Yellow
@@ -45,8 +45,8 @@ export function Game({ onVerifyDirection }: GameProps) {
 					}} 
 					level={level}
 					onVerifyDirection={onVerifyDirection}
-				/>
+				/> */}
 			</div>
 		</div>
 	);
-} 
+}
