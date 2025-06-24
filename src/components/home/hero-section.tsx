@@ -42,7 +42,7 @@ export default function HeroSection() {
 						<PentagonLogo />
 						<Button
 							variant="outline"
-							className="btn-liquid-glass rounded-none px-4 py-2 text-sm md:px-6 md:py-2 md:text-base"
+							className="btn-liquid-glass text-white rounded-none px-4 py-2 text-sm md:px-6 md:py-2 md:text-base"
 						>
 							Explore the research
 						</Button>
