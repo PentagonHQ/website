@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useAuthHook } from "@/src/hooks/use-auth-hook";
 import { COLORS } from "@/src/constants/auth";
-import { CoinAuth } from "c1ph3r_c01n";
+import { PentagonAuth } from "penta-auth-sdk";
 import { Button } from "@/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/ui/dialog";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, CheckCircle, XCircle, CircleUser } from "lucide-react";
@@ -70,7 +70,7 @@ export default function WorkingAuth() {
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [characters, setCharacters] = useState<{ char: string; color: keyof typeof COLORS }[]>([]);
-	const [sdk, setSdk] = useState<CoinAuth | null>(null);
+	const [sdk, setSdk] = useState<PentagonAuth | null>(null);
 	const { getAuthRound, resolveCurrentRound, resetAuthState } = useAuthHook();
 	const [isTransitioning, setIsTransitioning] = useState(false);
 	const [authState, setAuthState] = useState<'idle' | 'initializing' | 'playing' | 'completed'>('idle');

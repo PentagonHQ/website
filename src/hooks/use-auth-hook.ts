@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Wallet } from "ethers";
-import { CoinAuth } from "c1ph3r_c01n";
+import { PentagonAuth } from "penta-auth-sdk";
 // import { resolve } from "path/win32";
 
 type AuthState = {
@@ -20,7 +20,7 @@ export function useAuthHook() {
   const [directions, setDirections] = useState("");
   const [rounds, setRounds] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  const [sdk, setSdk] = useState<CoinAuth | null>(null);
+  const [sdk, setSdk] = useState<PentagonAuth | null>(null);
 
   const [authState, setAuthState] = useState<AuthState>({
     isInitialized: false,
@@ -36,7 +36,7 @@ export function useAuthHook() {
     if (sdk) return sdk; // Return existing SDK if already initialized
     
     try {
-      const newSdk = new CoinAuth(
+      const newSdk = new PentagonAuth(
         process.env.NODE_ENV === "development"
           ? "https://coinauth-local.arvin-993.workers.dev"
           : "https://auth.coin.fi",
@@ -103,17 +103,17 @@ export function useAuthHook() {
       setPrivateKey(wallet.privateKey);
       setDirections(newDirections);
 
-      console.log("createAuthWallet: About to call SDK newCoinAuth");
+      console.log("createAuthWallet: About to call SDK newPentagonAuth");
       
       // Create passkey with proper error handling
-      const result = await currentSdk.newCoinAuth({
+      const result = await currentSdk.newPentagonAuth({
         password: password,
         legend: newDirections.toUpperCase(),
         privateKey: wallet.privateKey,
         salt: process.env.NEXT_PUBLIC_PASSKEY_ENC_SALT,
       });
 
-      console.log("createAuthWallet: SDK newCoinAuth result:", result);
+      console.log("createAuthWallet: SDK newPentagonAuth result:", result);
 
       // Check if the SDK operation actually succeeded
       if (!result.success) {
@@ -178,7 +178,7 @@ export function useAuthHook() {
       const currentSdk = await initializeAuth();
       
       // Direct call without nested try-catch for better performance
-      const newAuthRound = await currentSdk.coinAuth(process.env.NEXT_PUBLIC_PASSKEY_ENC_SALT!);
+      const newAuthRound = await currentSdk.pentagonAuth(process.env.NEXT_PUBLIC_PASSKEY_ENC_SALT!);
       
       // Set final success state
       setAuthState((prev) => ({
@@ -217,7 +217,7 @@ export function useAuthHook() {
   }
 
   async function resolveCurrentRound(
-    newSdk: CoinAuth,
+    newSdk: PentagonAuth,
     currentRoundSolution: string,
   ) {
     const sdkRoundSolution =

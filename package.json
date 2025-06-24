@@ -19,7 +19,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.5",
     "autoprefixer": "10.4.20",
-    "c1ph3r_c01n": "^1.4.8",
+    "penta-auth-sdk": "^1.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "ethers": "^6.13.5",
