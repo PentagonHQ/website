@@ -24,11 +24,16 @@ export function useSectionNavigation(totalSections: number) {
     navigateToSection(currentSection + 1);
   }, [currentSection, navigateToSection]);
 
+  const scrollToTop = useCallback(() => {
+    navigateToSection(0);
+  }, [navigateToSection]);
+
   return {
     currentSection,
     isTransitioning,
     navigateToSection,
     scrollUp,
-    scrollDown
+    scrollDown,
+    scrollToTop
   };
-} 
+}
