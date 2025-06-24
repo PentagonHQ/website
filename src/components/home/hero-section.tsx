@@ -18,7 +18,7 @@ const PentagonLogo = ({ className }: { className?: string }) => (
 );
 
 export default function HeroSection() {
-	const terms = ["ASI", "AGI", "ML", "LLM", "AI", "digital", "autonomy", "superintelligence"];
+	const terms = ["ASI", "AGI", "ML", "LLMs", "AI", "autonomy", "superintelligence"];
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isFading, setIsFading] = useState(false);
 
@@ -36,9 +36,9 @@ export default function HeroSection() {
 
 	return (
 		<section className="relative min-h-screen bg-black flex flex-col">
-			<div className="flex flex-col h-screen">
+			<div className="container mx-auto px-4 flex flex-col h-screen">
 				<header className="p-4 z-10">
-					<div className="max-w-7xl mx-auto flex justify-between items-center">
+					<div className="flex justify-between items-center">
 						<PentagonLogo />
 						<Button
 							variant="outline"
@@ -49,7 +49,7 @@ export default function HeroSection() {
 					</div>
 				</header>
 
-				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full px-6 text-center">
+				<div className="flex-1 flex items-center justify-center text-center">
 					<div className="max-w-4xl mx-auto space-y-6">
 						<Typography variant="h1" className="text-white">
 							Authentication for the era of <span className={`transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}>{terms[currentIndex]}</span>

@@ -13,7 +13,7 @@ export default function HomePage() {
 
 	const sections = [
 		<HeroSection key="hero" />,
-		<InfoSection key="info" />,
+		<InfoSection key="info" scrollDown={scrollDown} />,
 		<AuthSection key="auth" />,
 		<FinalSection key="final" scrollToTop={scrollToTop} />,
 	];

@@ -112,9 +112,7 @@ export default async function RootLayout({
 		>
 			<body className="bg-black">
 				<main className="min-h-screen bg-black">
-					<div className="max-w-7xl mx-auto">
-						{children}
-					</div>
+					{children}
 				</main>
 				<Toaster />
 			</body>
