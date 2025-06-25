@@ -8,7 +8,7 @@ interface LayoutProps {
 
 export default function Footer() {
     return (
-        <footer style={{ zIndex: 0 }} className="relative bg-background/80 border-t w-full">
+        <footer style={{ zIndex: 0 }} className="relative bg-background/80 w-full">
             <div className="absolute w-full h-full top-0 left-0">
                 <video src="https://storage.googleapis.com/coinfi-website-content/footer.mp4" autoPlay={true} playsInline={true} muted={true} loop={true} className="w-full h-full object-cover">
                 </video>
@@ -19,7 +19,7 @@ export default function Footer() {
                 <div className="flex flex-col gap-8">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-8">
-                            <Image src="/pentagon_logo_white.svg" alt="Pentagon Logo" width={100} height={24} />
+                            <Image src="/pentagon_logo_white.svg" alt="Pentagon Logo" width={150} height={36} />
                             <nav className="flex gap-6">
                                 <Link
                                     href="/research"
@@ -39,7 +39,7 @@ export default function Footer() {
 
                     <div className="flex justify-between items-center border-t border-white/20 pt-40">
                         <div>
-                            <p className="text-md text-white">© 2025  Pentagon AI, Inc.  All rights reserved.</p>
+                            <p className="text-md text-white">© 2025  Pentagon AI, Inc.  All rights reserved. Patent pending.</p>
                         </div>
                     </div>
                 </div>

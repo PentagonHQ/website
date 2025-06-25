@@ -7,7 +7,7 @@ const defaultUrl = "https://usepentagon.com";
 
 const title = "Pentagon";
 const description =
-	"A set of protocols that involve cutting-edge cryptoeconomics, core infrastructure, and an ecosystem to incentivize users to collaborate rather than compete. At its core, encryption, digital signatures, and digital cash are cemented, allowing the ability for cyberspatial and real-world communities to begin and thrive.";
+	"Tools to protect humanity in cyberspatial and real-world communities against AGI, ASI, and adversarial attacks. Built by humans for humans.";
 const url = "https://usepentagon.com";
 const siteName = "Pentagon";
 

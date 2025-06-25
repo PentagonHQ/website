@@ -11,14 +11,14 @@ interface FinalSectionProps {
 export default function FinalSection({ scrollToTop }: FinalSectionProps) {
 	return (
 		<div className="relative min-h-screen flex flex-col">
-			<section className="flex-1 flex flex-col items-center justify-center text-center">
+			<section className="flex-1 flex flex-col items-center justify-center">
 				<div className="container mx-auto px-4">
-					<div className="max-w-7xl mx-auto space-y-2">
-						<p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
-							Exclusively engineered for entities that cannot afford compromise.
+					<div className="max-w-7xl mx-auto space-y-2 text-left">
+						<p className="text-2xl md:text-3xl text-gray-300 leading-relaxed max-w-4xl">
+						Exclusively engineered for entities that cannot afford compromise.
 						</p>
-						<p className="text-lg md:text-xl text-white font-bold leading-relaxed max-w-4xl mx-auto">
-							White-glove onboarding only.
+						<p className="text-2xl md:text-3xl text-white font-bold leading-relaxed max-w-4xl">
+						White-glove onboarding only.
 						</p>
 					</div>
 				</div>

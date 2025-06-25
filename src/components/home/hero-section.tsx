@@ -17,7 +17,7 @@ const PentagonLogo = ({ className }: { className?: string }) => (
 	</div>
 );
 
-export default function HeroSection() {
+export default function HeroSection({ scrollDown }: { scrollDown: () => void }) {
 	const terms = ["ASI", "AGI", "ML", "LLMs", "AI", "autonomy", "superintelligence"];
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isFading, setIsFading] = useState(false);
@@ -50,7 +50,7 @@ export default function HeroSection() {
 				</header>
 
 				<div className="flex-1 flex items-center justify-center text-center">
-					<div className="max-w-4xl mx-auto space-y-6">
+					<div className="mx-auto space-y-6">
 						<Typography variant="h1" className="text-white">
 							Authentication for the era of <span className={`transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}>{terms[currentIndex]}</span>
 						</Typography>
@@ -63,9 +63,7 @@ export default function HeroSection() {
 				<div className="absolute bottom-20 left-1/2 -translate-x-1/2">
 					<div
 						className="w-10 h-10 border border-white/50 rounded-full flex items-center justify-center cursor-pointer animate-pulse"
-						onClick={() => {
-							window.dispatchEvent(new CustomEvent('navigateToNextSection'));
-						}}
+						onClick={scrollDown}
 					>
 						<ChevronDown className="w-6 h-6 text-white" />
 					</div>
