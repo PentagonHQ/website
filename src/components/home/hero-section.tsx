@@ -17,8 +17,8 @@ const PentagonLogo = ({ className }: { className?: string }) => (
 	</div>
 );
 
-export default function HeroSection() {
-	const terms = ["ASI", "AGI", "ML", "LLM", "AI", "digital", "autonomy", "superintelligence"];
+export default function HeroSection({ scrollDown }: { scrollDown: () => void }) {
+	const terms = ["ASI", "AGI", "ML", "LLMs", "AI", "autonomy", "superintelligence"];
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isFading, setIsFading] = useState(false);
 
@@ -36,9 +36,9 @@ export default function HeroSection() {
 
 	return (
 		<section className="relative min-h-screen bg-black flex flex-col">
-			<div className="flex flex-col h-screen">
+			<div className="container mx-auto px-4 flex flex-col h-screen">
 				<header className="p-4 z-10">
-					<div className="max-w-7xl mx-auto flex justify-between items-center">
+					<div className="flex justify-between items-center">
 						<PentagonLogo />
 						<Button
 							variant="outline"
@@ -49,8 +49,8 @@ export default function HeroSection() {
 					</div>
 				</header>
 
-				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full px-6 text-center">
-					<div className="max-w-4xl mx-auto space-y-6">
+				<div className="flex-1 flex items-center justify-center text-center">
+					<div className="mx-auto space-y-6">
 						<Typography variant="h1" className="text-white">
 							Authentication for the era of <span className={`transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}>{terms[currentIndex]}</span>
 						</Typography>
@@ -63,9 +63,7 @@ export default function HeroSection() {
 				<div className="absolute bottom-20 left-1/2 -translate-x-1/2">
 					<div
 						className="w-10 h-10 border border-white/50 rounded-full flex items-center justify-center cursor-pointer animate-pulse"
-						onClick={() => {
-							window.dispatchEvent(new CustomEvent('navigateToNextSection'));
-						}}
+						onClick={scrollDown}
 					>
 						<ChevronDown className="w-6 h-6 text-white" />
 					</div>

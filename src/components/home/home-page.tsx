@@ -12,8 +12,8 @@ export default function HomePage() {
 	const { currentSection, scrollUp, scrollDown, scrollToTop } = useSectionNavigation(4);
 
 	const sections = [
-		<HeroSection key="hero" />,
-		<InfoSection key="info" />,
+		<HeroSection key="hero" scrollDown={scrollDown} />,
+		<InfoSection key="info" scrollDown={scrollDown} currentSection={currentSection} />,
 		<AuthSection key="auth" />,
 		<FinalSection key="final" scrollToTop={scrollToTop} />,
 	];
