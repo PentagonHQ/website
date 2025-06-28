@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Typography } from "@/components/ui/typography";
+import { ContactSheet } from "@/components/contact/contact-sheet";
 import { ChevronDown } from "lucide-react";
 
 const PentagonLogo = ({ className }: { className?: string }) => (
@@ -40,12 +41,14 @@ export default function HeroSection({ scrollDown }: { scrollDown: () => void }) 
 				<header className="p-4 z-10">
 					<div className="flex justify-between items-center">
 						<PentagonLogo />
-						<Button
-							variant="outline"
-							className="btn-liquid-glass text-white rounded-none px-4 py-2 text-sm md:px-6 md:py-2 md:text-base"
-						>
-							Explore the research
-						</Button>
+						<ContactSheet>
+							<Button
+								variant="outline"
+								className="btn-liquid-glass text-white rounded-none px-4 py-2 text-sm md:px-6 md:py-2 md:text-base"
+							>
+								Get Started
+							</Button>
+						</ContactSheet>
 					</div>
 				</header>
 

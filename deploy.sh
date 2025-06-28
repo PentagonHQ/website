@@ -48,12 +48,11 @@ fi
 
 # Submit build to Cloud Build
 log "📥 Submitting build to Cloud Build..."
-SUBSTITUTIONS="_SERVICE_NAME=$APP_NAME"
-SUBSTITUTIONS="$SUBSTITUTIONS,_RESEND_API_KEY=$RESEND_API_KEY"
-SUBSTITUTIONS="$SUBSTITUTIONS,_NEXT_PUBLIC_PASSKEY_ENC_SALT=$NEXT_PUBLIC_PASSKEY_ENC_SALT"
-SUBSTITUTIONS="$SUBSTITUTIONS,_NEXT_PUBLIC_VERIFIER_SECRET=$NEXT_PUBLIC_VERIFIER_SECRET"
-
-if ! gcloud builds submit --config=cloudbuild.yaml --substitutions=$SUBSTITUTIONS .; then
+if ! gcloud builds submit --config=cloudbuild.yaml \
+    --substitutions="_SERVICE_NAME=$APP_NAME" \
+    --substitutions="_RESEND_API_KEY=$RESEND_API_KEY" \
+    --substitutions="_NEXT_PUBLIC_PASSKEY_ENC_SALT=$NEXT_PUBLIC_PASSKEY_ENC_SALT" \
+    --substitutions="_NEXT_PUBLIC_VERIFIER_SECRET=$NEXT_PUBLIC_VERIFIER_SECRET" .; then
     error "❌ Cloud Build submission failed"
     exit 1
 fi

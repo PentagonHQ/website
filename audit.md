@@ -80,7 +80,7 @@ graph TD
     K --> M{useAuthHook};
     L --> M;
 
-    M --> N[c1ph3r_c01n SDK];
+    M --> N[penta-auth-sdk];
 
     subgraph "UI & Navigation"
         B
@@ -127,7 +127,7 @@ sequenceDiagram
     participant User
     participant SetupAuth
     participant useAuthHook
-    participant c1ph3r_c01n
+    participant penta-auth-sdk
 
     User->>SetupAuth: Enters Password
     SetupAuth->>useAuthHook: setNewPassword(password)
@@ -135,8 +135,8 @@ sequenceDiagram
     SetupAuth->>SetupAuth: Constructs 'directions' string (e.g., "udlr")
     User->>SetupAuth: Clicks "Complete Setup"
     SetupAuth->>useAuthHook: createAuthWallet(directions)
-    useAuthHook->>c1ph3r_c01n: Generates wallet from password + directions
-    c1ph3r_c01n-->>useAuthHook: Returns encrypted credentials
+    useAuthHook->>penta-auth-sdk: Generates wallet from password + directions
+    penta-auth-sdk-->>useAuthHook: Returns encrypted credentials
     useAuthHook->>Browser: Stores credentials in localStorage
     SetupAuth->>AuthFlow: Dispatches "authSetupComplete" event
 ```
@@ -150,23 +150,23 @@ sequenceDiagram
     participant User
     participant WorkingAuth
     participant useAuthHook
-    participant c1ph3r_c01n
+    participant penta-auth-sdk
 
     User->>WorkingAuth: Clicks "Access Account"
     WorkingAuth->>useAuthHook: getAuthRound()
-    useAuthHook->>c1ph3r_c01n: Initializes with stored credentials
-    c1ph3r_c01n-->>useAuthHook: Returns Round 1 Challenge (Color Grid)
+    useAuthHook->>penta-auth-sdk: Initializes with stored credentials
+    penta-auth-sdk-->>useAuthHook: Returns Round 1 Challenge (Color Grid)
     useAuthHook-->>WorkingAuth: Displays Challenge
     User->>WorkingAuth: Enters Direction 1
     WorkingAuth->>useAuthHook: resolveCurrentRound(direction1)
-    useAuthHook->>c1ph3r_c01n: Processes response
-    c1ph3r_c01n-->>useAuthHook: Returns Round 2 Challenge
+    useAuthHook->>penta-auth-sdk: Processes response
+    penta-auth-sdk-->>useAuthHook: Returns Round 2 Challenge
     useAuthHook-->>WorkingAuth: Displays new Challenge
     Note right of User: User repeats for N rounds...
     User->>WorkingAuth: Enters Final Direction
     WorkingAuth->>useAuthHook: resolveCurrentRound(finalDirection)
-    useAuthHook->>c1ph3r_c01n: Processes final response
-    c1ph3r_c01n-->>useAuthHook: Returns { verification_result: true }
+    useAuthHook->>penta-auth-sdk: Processes final response
+    penta-auth-sdk-->>useAuthHook: Returns { verification_result: true }
     useAuthHook-->>WorkingAuth: Authentication Success
 ```
 
@@ -187,14 +187,18 @@ sequenceDiagram
 | **framer-motion** | `^12.2.0` | Animation Library | Powers the UI animations. |
 | **ethers** | `^6.13.5` | Web3 Library | Ethereum interaction. |
 | **fuels** | `^0.99.0` | Web3 Library | Fuel blockchain interaction. |
-| **c1ph3r_c01n** | `^1.4.8` | **Core Auth SDK** | **Critical, custom auth logic.** |
+| **penta-auth-sdk** | `^1.0.0` | **Core Auth SDK** | **Critical, custom auth logic.** |
+| **@hookform/resolvers** | `^4.0.0` | Hook Form Resolver | Used with `react-hook-form`. |
+| **input-otp** | `^1.4.2` | One-Time Password Input | For OTP input fields. |
+| **sharp** | `^0.33.5` | Image Processing | For image optimization. |
 | **resend** | `^4.1.2` | Email API | For sending transactional emails. |
 | **zod** | `^3.24.2` | Schema Validation | Used with `react-hook-form`. |
+| **prettier** | `^3.3.3` | Code Formatter | For code consistency. |
 
 ### 5.2. Security & Versioning
 
--   The use of `next: "latest"` is risky for production builds as it can pull in breaking changes unexpectedly. It should be pinned to a specific version.
--   The `c1ph3r_c01n` library is a critical, potentially unaudited dependency. Its security and functionality are paramount to the application's integrity.
+-   The use of `next: "latest"` is risky for production builds as it can pull in breaking changes unexpectedly. It should be pinned to a specific version (e.g., `next: "14.2.3"`).
+-   The `penta-auth-sdk` library is a critical, potentially unaudited dependency. Its security and functionality are paramount to the application's integrity.
 
 ---
 
@@ -211,7 +215,7 @@ sequenceDiagram
 
 -   **Style:** The code is clean, well-formatted (likely with Prettier), and consistently follows modern React/TypeScript conventions.
 -   **Modularity:** High. Logic is effectively separated into components, hooks, and utilities.
--   **Documentation:** Low. While the code is readable, there is a lack of inline comments and JSDoc, especially for the complex authentication logic in `useAuthHook` and the `c1ph3r_c01n` interactions.
+-   **Documentation:** Low. While the code is readable, there is a lack of inline comments and JSDoc, especially for the complex authentication logic in `useAuthHook` and the `penta-auth-sdk` interactions.
 -   **Technical Debt:** Minimal visible debt in the analyzed files. The main debt is the lack of tests.
 
 ---
@@ -227,9 +231,9 @@ sequenceDiagram
 ## 9. Security & Compliance
 
 -   **Secret Management:** Excellent. Secrets are not checked into the repository and are securely injected at build time using a mature cloud service.
--   **Authentication:** The custom authentication protocol appears robust and is likely more secure than simple password-based systems. However, its security is entirely dependent on the implementation within the `c1ph3r_c01n` library.
+-   **Authentication:** The custom authentication protocol appears robust and is likely more secure than simple password-based systems. However, its security is entirely dependent on the implementation within the `penta-auth-sdk` library.
 -   **Potential Risks:**
-    *   **Dependency Risk:** The `c1ph3r_c01n` library is a single point of failure and a potential security black box if not thoroughly audited.
+    *   **Dependency Risk:** The `penta-auth-sdk` library is a single point of failure and a potential security black box if not thoroughly audited.
     *   **Frontend Logic:** Since much of the auth logic (generating challenges, etc.) is in the frontend, it must be resilient to reverse-engineering. A zero-knowledge proof system would mitigate this, which is the likely implementation.
 
 ---
@@ -241,7 +245,7 @@ sequenceDiagram
     *   Write unit tests for all hooks.
     *   Write component tests for the `AuthFlow` and its children.
 2.  **Add Inline Documentation (High Priority):**
-    *   Document the `useAuthHook` and its interaction with the `c1ph3r_c01n` SDK in detail.
+    *   Document the `useAuthHook` and its interaction with the `penta-auth-sdk` SDK in detail.
     *   Add JSDoc comments to all components and functions explaining their purpose, props, and return values.
 3.  **Pin Dependency Versions (Medium Priority):**
     *   Change `next: "latest"` in `package.json` to a specific version (e.g., `next: "14.2.3"`) to ensure build stability.
@@ -254,6 +258,6 @@ sequenceDiagram
 
 -   [ ] **Understand the Core UI:** Read `src/components/home/home-page.tsx` and `src/hooks/use-section-navigation.ts` to understand the full-screen scrolling mechanism.
 -   [ ] **Master the Auth Flow:** This is the most complex part of the app. Study the diagrams and code for `SetupAuth.tsx` and `WorkingAuth.tsx` thoroughly.
--   [ ] **Review the `useAuthHook`:** Read `src/hooks/use-auth-hook.ts` to understand how the frontend interfaces with the `c1ph3r_c01n` library.
+-   [ ] **Review the `useAuthHook`:** Read `src/hooks/use-auth-hook.ts` to understand how the frontend interfaces with the `penta-auth-sdk` library.
 -   [ ] **Set Up Local Environment:** Use `bun install` and `bun dev` to run the project locally.
 -   [ ] **Ask for Secrets:** You will need access to the development secrets (or mock values) to run the authentication flow.

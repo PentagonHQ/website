@@ -21,18 +21,11 @@ export default function Footer() {
                         <div className="flex items-center gap-8">
                             <Image src="/pentagon_logo_white.svg" alt="Pentagon Logo" width={150} height={36} />
                             <nav className="flex gap-6">
-                                <Link
-                                    href="/research"
-                                    className="z-50 text-md text-white hover:text-white/80"
-                                >
-                                    Research
-                                </Link>
-                                <Link
-                                    href="/tutorial"
-                                    className="z-50 text-md text-white hover:text-white/80"
-                                >
-                                    Tutorial
-                                </Link>
+                                <span className="shimmer z-50 text-md text-white">
+                                    Patent Pending
+                                </span>
+                                {/* <Link href="/research" className="z-50 text-md text-white hover:text-white/80">Research</Link> */}
+                                {/* <Link href="/tutorial" className="z-50 text-md text-white hover:text-white/80">Tutorial</Link> */}
                             </nav>
                         </div>
                     </div>
