@@ -16,12 +16,30 @@ export async function sendContactForm(formData: FormData) {
 
     try {
         const data = await resend.emails.send({
-            from: 'Website contact <noreply@mail.coin.fi>',
-            to: "CoinFi <simon@coin.fi>",
+            from: 'Website Contact <noreply@usepentagon.com>',
+            to: "Pentagon <arvin@usepentagon.com>",
             subject: `Website contact from ${name}`,
             react: await EmailTemplate({ name, email, message }),
         });
         console.log(data)
+        return data;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function sendResearchInquiry() {
+    try {
+        const data = await resend.emails.send({
+            from: 'Website Inquiry <noreply@usepentagon.com>',
+            to: "Pentagon <arvin@usepentagon.com>",
+            subject: "Website Inquiry: 'Explore the research' button clicked",
+            react: await EmailTemplate({
+                name: "Automated System",
+                email: "system@usepentagon.com",
+                message: "This is an automated notification that a user clicked the 'Explore the research' button on the hero section."
+            }),
+        });
         return data;
     } catch (error) {
         console.log(error)
